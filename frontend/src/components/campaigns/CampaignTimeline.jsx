@@ -1,30 +1,56 @@
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card"
-import { CheckCircle2, Circle } from "lucide-react"
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
+import { CheckCircle2, Circle } from "lucide-react";
 
-const ALL_STAGES = ["Created", "Queued", "Sending", "Delivered", "Opened", "Clicked", "Converted"]
+const ALL_STAGES = [
+  "Created",
+  "Launched",
+  "Sending",
+  "Delivered",
+  "Opened",
+  "Clicked",
+  "Converted",
+];
 
 function getStageStatus(stageName, campaignStatus) {
-  const statusOrder = ["draft", "queued", "sending", "delivered", "opened", "clicked", "completed"]
-  const stageOrder = ["created", "queued", "sending", "delivered", "opened", "clicked", "converted"]
+  const statusOrder = [
+    "draft",
+    "launched",
+    "sending",
+    "delivered",
+    "opened",
+    "clicked",
+    "completed",
+  ];
+  const stageOrder = [
+    "created",
+    "launched",
+    "sending",
+    "delivered",
+    "opened",
+    "clicked",
+    "converted",
+  ];
 
-  const currentIdx = statusOrder.indexOf((campaignStatus || "draft").toLowerCase())
-  const stageIdx = stageOrder.indexOf(stageName.toLowerCase())
+  const currentIdx = statusOrder.indexOf(
+    (campaignStatus || "draft").toLowerCase(),
+  );
+  const stageIdx = stageOrder.indexOf(stageName.toLowerCase());
 
-  if (stageIdx < currentIdx) return "complete"
-  if (stageIdx === currentIdx) return "partial"
-  return "pending"
+  if (stageIdx < currentIdx) return "complete";
+  if (stageIdx === currentIdx) return "partial";
+  return "pending";
 }
 
 export function CampaignTimeline({ campaign }) {
-  const status = campaign?.status || "draft"
+  const status = campaign?.status || "draft";
 
-  const stages = ALL_STAGES.map(name => ({
+  const stages = ALL_STAGES.map((name) => ({
     name,
     status: getStageStatus(name, status),
-  }))
+  }));
 
-  const completedCount = stages.filter(s => s.status === "complete").length
-  const progressPct = Math.round((completedCount / ALL_STAGES.length) * 100)
+  const completedCount = stages.filter((s) => s.status === "complete").length;
+  const progressPct = Math.round((completedCount / ALL_STAGES.length) * 100);
 
   return (
     <Card>
@@ -54,7 +80,9 @@ export function CampaignTimeline({ campaign }) {
                   )}
                 </div>
                 <div className="mt-3 flex flex-col items-center gap-1">
-                  <span className={`text-sm font-medium ${stage.status === 'pending' ? 'text-textMuted' : 'text-textPrimary'}`}>
+                  <span
+                    className={`text-sm font-medium ${stage.status === "pending" ? "text-textMuted" : "text-textPrimary"}`}
+                  >
                     {stage.name}
                   </span>
                 </div>
@@ -64,9 +92,11 @@ export function CampaignTimeline({ campaign }) {
         </div>
 
         {status === "draft" && (
-          <p className="text-center text-xs text-textMuted mt-6">This campaign hasn't launched yet.</p>
+          <p className="text-center text-xs text-textMuted mt-6">
+            This campaign hasn't launched yet.
+          </p>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

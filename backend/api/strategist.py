@@ -1,8 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from langchain_openai import ChatOpenAI
-
+from agents.gemini_llm import get_gemini_llm
 from core.database import get_db
 from core.auth import get_current_user
 from schemas.strategist import StrategistRequest, StrategistResponse
@@ -19,9 +18,7 @@ async def generate_strategy(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    """
-    Triggers the LangGraph orchestration to generate a campaign strategy based on a natural language prompt.
-    """
+
     # 1. Run the LangGraph Orchestrator (Audience -> Channel -> Campaign)
     initial_state = {"input": request.prompt}
     final_state = orchestrator_app.invoke(initial_state)
@@ -31,7 +28,7 @@ async def generate_strategy(
     campaign_data = final_state.get("campaign_data", {})
     
     # 2. Run the Analytics Agent to get projections
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = get_gemini_llm(model="models/gemini-1.5", temperature=0)
     analytics = get_analytics_agent(llm)
     try:
         response = analytics.invoke({

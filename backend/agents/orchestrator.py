@@ -2,21 +2,8 @@ from typing import TypedDict, Annotated, Sequence
 import operator
 from langchain_core.messages import BaseMessage
 from langgraph.graph import StateGraph, END
-try:
-    from langchain_openai import ChatOpenAI
-except ModuleNotFoundError:
-    ChatOpenAI = None
+from agents.gemini_llm import get_gemini_llm
 from langchain_core.messages import HumanMessage, AIMessage
-
-class FallbackChatOpenAI:
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return self
-
-    def invoke(self, *args, **kwargs):
-        return type("R", (), {"content": "{}"})
 
 from agents.audience_agent import get_audience_agent
 from agents.channel_agent import get_channel_agent
@@ -31,7 +18,7 @@ class AgentState(TypedDict):
 
 # Node functions
 def audience_node(state: AgentState):
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0) if ChatOpenAI else None
+    llm = get_gemini_llm(model="models/gemini-1.5", temperature=0) if get_gemini_llm else None
     agent = get_audience_agent(llm)
     try:
         response = agent.invoke({"input": state["input"]})
@@ -48,7 +35,7 @@ def audience_node(state: AgentState):
     return {"audience_data": data}
 
 def channel_node(state: AgentState):
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0) if ChatOpenAI else None
+    llm = get_gemini_llm(model="models/gemini-1.5", temperature=0) if get_gemini_llm else None
     agent = get_channel_agent(llm)
     try:
         response = agent.invoke({
@@ -68,7 +55,7 @@ def channel_node(state: AgentState):
     return {"channel_data": data}
 
 def campaign_node(state: AgentState):
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7) if ChatOpenAI else None
+    llm = get_gemini_llm(model="models/gemini-1.5", temperature=0.7) if get_gemini_llm else None
     agent = get_campaign_agent(llm)
     try:
         response = agent.invoke({

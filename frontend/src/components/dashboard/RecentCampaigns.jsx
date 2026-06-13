@@ -1,25 +1,27 @@
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card"
-import { Badge } from "../ui/Badge"
-import { useMockData } from "../../hooks/useMockData"
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
+import { Badge } from "../ui/Badge";
+import { useMockData } from "../../hooks/useMockData";
 
 export function RecentCampaigns() {
-  const { data } = useMockData()
-  
-  const campaigns = data.campaigns 
-    ? data.campaigns.slice(0, 4).map(c => ({
+  const { data } = useMockData();
+
+  const campaigns = data.campaigns
+    ? data.campaigns.slice(0, 4).map((c) => ({
         id: c.id,
         name: c.name,
         audience: `Segment #${c.segment_id}`,
-        channel: c.channel || 'Email',
+        channel: c.channel || "Email",
         status: c.status.charAt(0).toUpperCase() + c.status.slice(1),
-        revenue: c.metrics?.revenue ? `$${c.metrics.revenue}` : '—'
+        revenue: c.metrics?.revenue ? `$${c.metrics.revenue}` : "—",
       }))
-    : data.RECENT_CAMPAIGNS
+    : data.RECENT_CAMPAIGNS;
 
   return (
     <Card className="shadow-card overflow-hidden p-0">
       <CardHeader className="px-6 pt-5 pb-4 border-b border-border mb-0 bg-background/40">
-        <CardTitle className="text-sm font-semibold text-textPrimary">Recent Campaigns</CardTitle>
+        <CardTitle className="text-sm font-semibold text-textPrimary">
+          Recent Campaigns
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
@@ -44,20 +46,35 @@ export function RecentCampaigns() {
                       <div className="w-6 h-6 rounded-full border border-border bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px] shrink-0">
                         {campaign.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-medium text-textPrimary text-sm">{campaign.name}</span>
+                      <span className="font-medium text-textPrimary text-sm">
+                        {campaign.name}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-6 py-3.5 text-textSecondary text-sm">{campaign.audience}</td>
-                  <td className="px-6 py-3.5 text-textSecondary text-sm">{campaign.channel}</td>
+                  <td className="px-6 py-3.5 text-textSecondary text-sm">
+                    {campaign.audience}
+                  </td>
+                  <td className="px-6 py-3.5 text-textSecondary text-sm">
+                    {campaign.channel}
+                  </td>
                   <td className="px-6 py-3.5">
-                    <Badge variant={
-                      campaign.status === 'Running' || campaign.status === 'Sending' || campaign.status === 'Queued' ? 'success' :
-                      campaign.status === 'Completed' ? 'default' : 'outline'
-                    }>
+                    <Badge
+                      variant={
+                        campaign.status === "Running" ||
+                        campaign.status === "Sending" ||
+                        campaign.status === "Launched"
+                          ? "success"
+                          : campaign.status === "Completed"
+                            ? "default"
+                            : "outline"
+                      }
+                    >
                       {campaign.status}
                     </Badge>
                   </td>
-                  <td className="px-6 py-3.5 text-textPrimary font-semibold text-sm">{campaign.revenue}</td>
+                  <td className="px-6 py-3.5 text-textPrimary font-semibold text-sm">
+                    {campaign.revenue}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -65,5 +82,5 @@ export function RecentCampaigns() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

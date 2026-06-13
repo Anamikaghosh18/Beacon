@@ -32,9 +32,3 @@ class CampaignRepository:
         await self.session.merge(campaign)
         await self.session.flush()
         return campaign
-
-    async def get_queued_campaigns(self) -> List[Campaign]:
-        result = await self.session.execute(
-            select(Campaign).where(Campaign.status == "queued")
-        )
-        return result.scalars().all()

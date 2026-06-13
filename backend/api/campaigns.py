@@ -64,6 +64,6 @@ async def launch_campaign(
         if not campaign:
             raise HTTPException(status_code=404, detail="Campaign not found")
         await db.commit()
-        return {"status": "queued", "id": campaign.id}
+        return {"status": "launched", "id": campaign.id}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

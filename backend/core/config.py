@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Beacon API"
+    PROJECT_NAME: str = "Beacon"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api"
     
@@ -18,18 +18,13 @@ class Settings(BaseSettings):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
     
     # Redis Settings
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
-    
-    @property
-    def REDIS_URI(self) -> str:
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+    # Messaging/Redis removed for now (not used in current deployment)
         
     # Clerk Auth Settings
-    CLERK_ISSUER: Optional[str] = None # e.g. https://clerk.your-domain.com
-    OPENAI_API_KEY: Optional[str] = None
+    CLERK_ISSUER: Optional[str] = None 
+    GOOGLE_API_KEY: Optional[str] = None
+    GEMINI_API_KEY: Optional[str] = None
     DEV_AUTH_DISABLED: bool = True
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
 settings = Settings()

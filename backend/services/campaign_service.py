@@ -54,5 +54,5 @@ class CampaignService:
         if campaign.status != "draft":
             raise ValueError("Only draft campaigns can be launched")
 
-        campaign.status = "queued"
+        campaign.status = "launched"
         return await self.repo.update(campaign)

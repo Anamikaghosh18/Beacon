@@ -1,17 +1,17 @@
 from langchain_core.prompts import ChatPromptTemplate
 try:
-    from langchain_openai import ChatOpenAI
+    from agents.gemini_llm import get_gemini_llm
 except ModuleNotFoundError:
-    ChatOpenAI = None
+    get_gemini_llm = None
 from tools.customer_tools import get_customer_segments
 import json
 
 class FallbackAgent:
     def invoke(self, inputs):
-        return type("R", (), {"content": '{"segment_name": "Your Best Buyers", "reason": "Fallback due to missing langchain_openai", "estimated_count": 1240}'})
+        return type("R", (), {"content": '{"segment_name": "Your Best Buyers", "reason": "Fallback due to missing Gemini LLM or API key", "estimated_count": 1240}'})
 
 def get_audience_agent(llm):
-    if llm is None or ChatOpenAI is None:
+    if llm is None or get_gemini_llm is None:
         return FallbackAgent()
 
     prompt = ChatPromptTemplate.from_messages([

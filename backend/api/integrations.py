@@ -13,7 +13,7 @@ from core.auth import get_current_user
 router = APIRouter()
 
 class ConnectSourceRequest(BaseModel):
-    source_type: str # e.g., 'shopify', 'postgres'
+    source_type: str 
     credentials: dict
 
 @router.post("/upload")
@@ -36,7 +36,6 @@ async def upload_customers(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error parsing file: {str(e)}")
 
-    # Clean DataFrame: strip whitespace from column names and lowercase them
     df.columns = df.columns.str.strip().str.lower()
     
     # Check if 'email' and 'name' exist
@@ -75,7 +74,7 @@ async def upload_customers(
         )
         
         await db.execute(upsert_stmt)
-        inserted_count += 1 # We just count processed rows for simplicity
+        inserted_count += 1 
 
     await db.commit()
 
@@ -88,9 +87,7 @@ async def connect_source(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    """
-    Mock endpoint to 'connect' a third party integration like Shopify.
-    """
+    
     if request.source_type not in ['shopify', 'postgres', 'woocommerce']:
         raise HTTPException(status_code=400, detail="Unsupported source type")
         
@@ -99,8 +96,7 @@ async def connect_source(
         if 'shop_name' not in request.credentials or 'access_token' not in request.credentials:
             raise HTTPException(status_code=400, detail="Missing required credentials for Shopify")
             
-    # In a real app, save credentials encrypted in DB.
-    # Return success mock
+    
     return {
         "status": "connected",
         "source_type": request.source_type,

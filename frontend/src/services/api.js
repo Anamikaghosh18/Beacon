@@ -88,19 +88,35 @@ class ApiService {
   }
 
   // Integrations (Data Sources)
-  uploadDataFile(file) {
+  async uploadDataFile(file) {
     const formData = new FormData();
     formData.append("file", file);
 
+    const headers = {};
+
+    // Attempt to get Clerk token
+    if (typeof window !== "undefined" && window.Clerk?.session?.getToken) {
+      try {
+        const token = await window.Clerk.session.getToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+      } catch (error) {
+        console.warn("Unable to get Clerk token for upload:", error);
+      }
+    }
+
     // Using native fetch directly to omit default Content-Type header so browser sets multipart boundary
-    return fetch(`${this.baseUrl}/integrations/upload`, {
+    const res = await fetch(`${this.baseUrl}/integrations/upload`, {
       method: "POST",
       body: formData,
-      // headers: { 'Authorization': ... } // Add token if needed
-    }).then((res) => {
-      if (!res.ok) throw new Error("File upload failed");
-      return res.json();
+      headers,
     });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Upload failed: HTTP ${res.status}`);
+    }
+
+    return res.json();
   }
 
   connectSource(data) {

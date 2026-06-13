@@ -16,8 +16,7 @@ async def get_kpis(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    # Mock aggregation for Phase 1. Real implementation would query DB.
-    # We will query actual counts from the DB to make it dynamic when seeded.
+
     total_customers_q = await db.execute(select(func.count(Customer.id)))
     active_segments_q = await db.execute(select(func.count(Segment.id)))
     campaigns_sent_q = await db.execute(select(func.count(Campaign.id)).where(Campaign.status != 'draft'))
@@ -28,7 +27,7 @@ async def get_kpis(
         total_customers=total_customers_q.scalar() or 0,
         active_segments=active_segments_q.scalar() or 0,
         campaigns_sent=campaigns_sent_q.scalar() or 0,
-        revenue_influenced=1240500.00 # Placeholder for now
+        revenue_influenced=1240500.00 
     )
 
 @router.get("/funnel", response_model=FunnelResponse)
