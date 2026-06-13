@@ -28,7 +28,8 @@ class Settings(BaseSettings):
         
     # Clerk Auth Settings
     CLERK_ISSUER: Optional[str] = None # e.g. https://clerk.your-domain.com
-    
+    OPENAI_API_KEY: Optional[str] = None
+    DEV_AUTH_DISABLED: bool = True
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 settings = Settings()

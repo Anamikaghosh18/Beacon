@@ -1,17 +1,31 @@
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card"
 import { CheckCircle2, Circle } from "lucide-react"
 
-const STAGES = [
-  { name: "Created", status: "complete", time: "Oct 12, 10:00 AM" },
-  { name: "Queued", status: "complete", time: "Oct 12, 10:05 AM" },
-  { name: "Sending", status: "complete", time: "Oct 12, 10:10 AM" },
-  { name: "Delivered", status: "complete", time: "Oct 12, 10:15 AM" },
-  { name: "Opened", status: "partial", time: "Ongoing" },
-  { name: "Clicked", status: "partial", time: "Ongoing" },
-  { name: "Converted", status: "pending", time: "-" },
-]
+const ALL_STAGES = ["Created", "Queued", "Sending", "Delivered", "Opened", "Clicked", "Converted"]
 
-export function CampaignTimeline() {
+function getStageStatus(stageName, campaignStatus) {
+  const statusOrder = ["draft", "queued", "sending", "delivered", "opened", "clicked", "completed"]
+  const stageOrder = ["created", "queued", "sending", "delivered", "opened", "clicked", "converted"]
+
+  const currentIdx = statusOrder.indexOf((campaignStatus || "draft").toLowerCase())
+  const stageIdx = stageOrder.indexOf(stageName.toLowerCase())
+
+  if (stageIdx < currentIdx) return "complete"
+  if (stageIdx === currentIdx) return "partial"
+  return "pending"
+}
+
+export function CampaignTimeline({ campaign }) {
+  const status = campaign?.status || "draft"
+
+  const stages = ALL_STAGES.map(name => ({
+    name,
+    status: getStageStatus(name, status),
+  }))
+
+  const completedCount = stages.filter(s => s.status === "complete").length
+  const progressPct = Math.round((completedCount / ALL_STAGES.length) * 100)
+
   return (
     <Card>
       <CardHeader>
@@ -20,10 +34,13 @@ export function CampaignTimeline() {
       <CardContent>
         <div className="relative mt-8 mb-4 px-4">
           <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2 rounded-full"></div>
-          <div className="absolute top-1/2 left-0 w-[60%] h-0.5 bg-primary -translate-y-1/2 rounded-full"></div>
-          
+          <div
+            className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 rounded-full transition-all duration-700"
+            style={{ width: `${progressPct}%` }}
+          ></div>
+
           <div className="relative flex justify-between">
-            {STAGES.map((stage, i) => (
+            {stages.map((stage, i) => (
               <div key={i} className="flex flex-col items-center">
                 <div className="bg-card p-1 rounded-full relative z-10">
                   {stage.status === "complete" ? (
@@ -40,12 +57,15 @@ export function CampaignTimeline() {
                   <span className={`text-sm font-medium ${stage.status === 'pending' ? 'text-textMuted' : 'text-textPrimary'}`}>
                     {stage.name}
                   </span>
-                  <span className="text-xs text-textSecondary hidden md:block">{stage.time}</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        {status === "draft" && (
+          <p className="text-center text-xs text-textMuted mt-6">This campaign hasn't launched yet.</p>
+        )}
       </CardContent>
     </Card>
   )

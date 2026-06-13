@@ -1,6 +1,7 @@
-import { SignUp } from "@clerk/clerk-react";
+import React from "react";
+import { SignUp, useUser } from "@clerk/clerk-react";
 import { CheckCircle2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import logoImg from "../assets/beaconlogo.png";
 
 const BENEFITS = [
@@ -11,6 +12,12 @@ const BENEFITS = [
 ];
 
 export function SignupPage() {
+  const { isLoaded, isSignedIn } = useUser();
+
+  if (isLoaded && isSignedIn) {
+    return <Navigate to="/app/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex flex-1">
@@ -97,6 +104,7 @@ export function SignupPage() {
             </div>
             <SignUp
               routing="path"
+              path="/signup"
               signInUrl="/login"
               afterSignUpUrl="/app/dashboard"
               appearance={{

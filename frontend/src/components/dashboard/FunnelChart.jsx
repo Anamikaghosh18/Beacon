@@ -4,7 +4,11 @@ import { useMockData } from "../../hooks/useMockData"
 
 export function FunnelChart() {
   const { data } = useMockData()
-  const funnelData = data.CAMPAIGN_FUNNEL
+  
+  // Transform API funnel structure to what the chart expects
+  const funnelData = data.funnel 
+    ? data.funnel.map(item => ({ name: item.stage, value: item.count }))
+    : data.CAMPAIGN_FUNNEL
 
   return (
     <Card className="h-full">

@@ -4,7 +4,17 @@ import { useMockData } from "../../hooks/useMockData"
 
 export function RecentCampaigns() {
   const { data } = useMockData()
-  const campaigns = data.RECENT_CAMPAIGNS
+  
+  const campaigns = data.campaigns 
+    ? data.campaigns.slice(0, 4).map(c => ({
+        id: c.id,
+        name: c.name,
+        audience: `Segment #${c.segment_id}`,
+        channel: c.channel || 'Email',
+        status: c.status.charAt(0).toUpperCase() + c.status.slice(1),
+        revenue: c.metrics?.revenue ? `$${c.metrics.revenue}` : '—'
+      }))
+    : data.RECENT_CAMPAIGNS
 
   return (
     <Card className="shadow-card overflow-hidden p-0">
@@ -31,11 +41,9 @@ export function RecentCampaigns() {
                 >
                   <td className="px-6 py-3.5">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={`https://i.pravatar.cc/150?u=camp${idx}`}
-                        className="w-6 h-6 rounded-full border border-border shadow-xs object-cover"
-                        alt=""
-                      />
+                      <div className="w-6 h-6 rounded-full border border-border bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px] shrink-0">
+                        {campaign.name.charAt(0).toUpperCase()}
+                      </div>
                       <span className="font-medium text-textPrimary text-sm">{campaign.name}</span>
                     </div>
                   </td>
@@ -43,7 +51,7 @@ export function RecentCampaigns() {
                   <td className="px-6 py-3.5 text-textSecondary text-sm">{campaign.channel}</td>
                   <td className="px-6 py-3.5">
                     <Badge variant={
-                      campaign.status === 'Running'   ? 'success' :
+                      campaign.status === 'Running' || campaign.status === 'Sending' || campaign.status === 'Queued' ? 'success' :
                       campaign.status === 'Completed' ? 'default' : 'outline'
                     }>
                       {campaign.status}

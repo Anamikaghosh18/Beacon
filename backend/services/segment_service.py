@@ -16,7 +16,7 @@ class SegmentService:
         return await self.repo.get_by_id(segment_id)
 
     async def create_segment(self, data: SegmentCreate) -> Segment:
-        # In a real app, customer_count and revenue_total would be calculated dynamically
+    
         new_segment = Segment(
             name=data.name,
             description=data.description,

@@ -81,7 +81,9 @@ export function EventStream() {
               {filteredEvents.length === 0 && (
                 <tr>
                   <td colSpan="4" className="px-6 py-10 text-center text-textMuted">
-                    No activity matches your search.
+                    {searchTerm
+                      ? "No activity matches your search."
+                      : "No activity yet — launch a campaign to see live events here."}
                   </td>
                 </tr>
               )}

@@ -1,8 +1,10 @@
 import { CampaignTable } from "../components/campaigns/CampaignTable"
 import { Button } from "../components/ui/Button"
 import { Plus } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 export function Campaigns() {
+  const navigate = useNavigate();
   return (
     <div className="space-y-6 pb-8">
       <div className="flex items-center justify-between">
@@ -12,7 +14,10 @@ export function Campaigns() {
             Everything you've sent — or plan to send — to your customers. Track results and see what's working.
           </p>
         </div>
-        <Button className="gap-2 shadow-button-primary">
+        <Button 
+          className="gap-2 shadow-button-primary"
+          onClick={() => navigate('/app/assistant')}
+        >
           <Plus className="w-4 h-4" /> Start a New Campaign
         </Button>
       </div>

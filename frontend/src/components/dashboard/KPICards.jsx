@@ -4,13 +4,20 @@ import { useMockData } from "../../hooks/useMockData"
 
 export function KPICards() {
   const { data } = useMockData()
-  const { totalCustomers, activeSegments, campaignsSent, revenueInfluenced } = data.MOCK_KPIS
+  
+  const kpiData = data.kpis || {
+    total_customers: data.MOCK_KPIS.totalCustomers,
+    active_segments: data.MOCK_KPIS.activeSegments,
+    campaigns_sent: data.MOCK_KPIS.campaignsSent,
+    revenue_influenced: data.MOCK_KPIS.revenueInfluenced
+  }
+  const { total_customers, active_segments, campaigns_sent, revenue_influenced } = kpiData
 
   const kpis = [
     {
       title:   "Total Customers",
       subline: "People in your contact list",
-      value:   totalCustomers.toLocaleString(),
+      value:   total_customers?.toLocaleString() || "0",
       icon:    Users,
       trend:   "+12% this month",
       trendUp: true,
@@ -18,7 +25,7 @@ export function KPICards() {
     {
       title:   "Customer Groups",
       subline: "Active customer categories",
-      value:   activeSegments,
+      value:   active_segments || 0,
       icon:    TrendingUp,
       trend:   "+2 new groups",
       trendUp: true,
@@ -26,7 +33,7 @@ export function KPICards() {
     {
       title:   "Messages Sent",
       subline: "Across all campaigns",
-      value:   campaignsSent,
+      value:   campaigns_sent || 0,
       icon:    Megaphone,
       trend:   "+24% this month",
       trendUp: true,
@@ -34,7 +41,7 @@ export function KPICards() {
     {
       title:   "Revenue from Campaigns",
       subline: "Sales directly linked to messages",
-      value:   `$${(revenueInfluenced / 1000).toFixed(1)}k`,
+      value:   `$${((revenue_influenced || 0) / 1000).toFixed(1)}k`,
       icon:    DollarSign,
       trend:   "+8% this month",
       trendUp: true,

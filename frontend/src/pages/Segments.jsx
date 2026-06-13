@@ -6,7 +6,17 @@ import { Plus } from "lucide-react"
 
 export function Segments() {
   const { data } = useMockData()
-  const segments = data.SEGMENTS
+  
+  const segments = data.segments 
+    ? data.segments.map(s => ({
+        id: s.id,
+        name: s.name,
+        size: s.customer_count,
+        revenue: `$${((s.customer_count * 120)/1000).toFixed(1)}k`,
+        trend: '+5%',
+        desc: s.description || 'Customer segment based on rules.'
+      }))
+    : data.SEGMENTS
 
   return (
     <div className="space-y-8 pb-8">
@@ -17,7 +27,10 @@ export function Segments() {
             Beacon automatically groups your customers based on their behaviour. You can send targeted messages to any of these groups in one click.
           </p>
         </div>
-        <Button className="gap-2 shadow-button-primary shrink-0">
+        <Button 
+          className="gap-2 shadow-button-primary shrink-0"
+          onClick={() => document.getElementById('rule-builder')?.scrollIntoView({ behavior: 'smooth' })}
+        >
           <Plus className="w-4 h-4" /> Create a Group
         </Button>
       </div>
@@ -33,7 +46,7 @@ export function Segments() {
         </div>
       </div>
 
-      <div>
+      <div id="rule-builder">
         <h2 className="text-base font-semibold text-textPrimary mb-1">Build Your Own Group</h2>
         <p className="text-sm text-textSecondary mb-4">
           Want to target a specific type of customer? Use the simple builder below — no technical knowledge needed.

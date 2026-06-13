@@ -1,8 +1,25 @@
-import { EventStream } from "../components/events/EventStream"
 import { Card, CardContent } from "../components/ui/Card"
 import { CheckCircle2, MessageCircle, MousePointerClick, DollarSign } from "lucide-react"
+import { EventStream } from "../components/events/EventStream"
+import { useMockData } from "../hooks/useMockData"
 
 export function Events() {
+  const { data } = useMockData()
+
+  // Sum up real stats from campaigns if available
+  const campaigns = data.campaigns || []
+  const totalSent = campaigns.reduce((s, c) => s + (c.metrics?.sent || 0), 0)
+  const totalOpened = campaigns.reduce((s, c) => s + (c.metrics?.opened || 0), 0)
+  const totalClicked = campaigns.reduce((s, c) => s + (c.metrics?.clicked || 0), 0)
+  const totalRevenue = campaigns.reduce((s, c) => s + (c.metrics?.revenue || 0), 0)
+
+  const summaryCards = [
+    { icon: MessageCircle, label: "Messages sent", value: totalSent > 0 ? totalSent.toLocaleString() : "—" },
+    { icon: CheckCircle2, label: "Messages read", value: totalOpened > 0 ? totalOpened.toLocaleString() : "—" },
+    { icon: MousePointerClick, label: "Links clicked", value: totalClicked > 0 ? totalClicked.toLocaleString() : "—" },
+    { icon: DollarSign, label: "Sales from messages", value: totalRevenue > 0 ? `$${totalRevenue.toLocaleString()}` : "—" },
+  ]
+
   return (
     <div className="space-y-6 pb-8">
       <div className="flex items-start justify-between">
@@ -17,44 +34,21 @@ export function Events() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
           </span>
-          <span className="text-success font-medium text-sm">Everything running smoothly</span>
+          <span className="text-success font-medium text-sm">Live</span>
         </div>
       </div>
 
-      {/* Quick summary cards — no tech jargon */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="shadow-card">
-          <CardContent className="p-4 flex flex-col justify-center gap-1">
-            <div className="flex items-center gap-2 text-textMuted text-xs font-medium uppercase mb-1">
-              <MessageCircle className="w-3.5 h-3.5" /> Messages sent today
-            </div>
-            <div className="text-2xl font-bold text-textPrimary">12,450</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-card">
-          <CardContent className="p-4 flex flex-col justify-center gap-1">
-            <div className="flex items-center gap-2 text-textMuted text-xs font-medium uppercase mb-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Messages read
-            </div>
-            <div className="text-2xl font-bold text-textPrimary">5,803</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-card">
-          <CardContent className="p-4 flex flex-col justify-center gap-1">
-            <div className="flex items-center gap-2 text-textMuted text-xs font-medium uppercase mb-1">
-              <MousePointerClick className="w-3.5 h-3.5" /> Links clicked
-            </div>
-            <div className="text-2xl font-bold text-textPrimary">1,241</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-card">
-          <CardContent className="p-4 flex flex-col justify-center gap-1">
-            <div className="flex items-center gap-2 text-textMuted text-xs font-medium uppercase mb-1">
-              <DollarSign className="w-3.5 h-3.5" /> Sales from messages
-            </div>
-            <div className="text-2xl font-bold text-textPrimary">$4,210</div>
-          </CardContent>
-        </Card>
+        {summaryCards.map(({ icon: Icon, label, value }, i) => (
+          <Card key={i} className="shadow-card">
+            <CardContent className="p-4 flex flex-col justify-center gap-1">
+              <div className="flex items-center gap-2 text-textMuted text-xs font-medium uppercase mb-1">
+                <Icon className="w-3.5 h-3.5" /> {label}
+              </div>
+              <div className="text-2xl font-bold text-textPrimary">{value}</div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <EventStream />

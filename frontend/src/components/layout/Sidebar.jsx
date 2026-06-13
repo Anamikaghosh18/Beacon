@@ -6,6 +6,7 @@ import {
   Users,
   Activity,
   LogOut,
+  Database,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { cn } from "../../lib/utils";
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { name: "Campaigns", href: "/app/campaigns", icon: Megaphone },
   { name: "Audiences", href: "/app/segments", icon: Users },
   { name: "Live Activity", href: "/app/events", icon: Activity },
+  { name: "Data Sources", href: "/app/integrations", icon: Database },
 ];
 
 export function Sidebar() {

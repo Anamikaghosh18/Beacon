@@ -1,12 +1,35 @@
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card"
 
-export function PerformanceMetrics() {
+export function PerformanceMetrics({ campaign }) {
+  // If campaign has real metrics, use them. Otherwise show empty/zero state.
+  const m = campaign?.metrics || {}
+
   const metrics = [
-    { label: "Delivery Rate", value: "98.5%", subtext: "123,000 delivered" },
-    { label: "Open Rate", value: "36.4%", subtext: "44,772 opened" },
-    { label: "Click Rate", value: "9.2%", subtext: "11,316 clicked" },
-    { label: "Conversion Rate", value: "2.8%", subtext: "3,444 converted" },
-    { label: "Revenue", value: "$124,500", subtext: "$36 avg. order" },
+    {
+      label: "Delivery Rate",
+      value: m.delivery_rate != null ? `${m.delivery_rate}%` : "—",
+      subtext: m.delivered != null ? `${m.delivered.toLocaleString()} delivered` : "No data yet",
+    },
+    {
+      label: "Open Rate",
+      value: m.open_rate != null ? `${m.open_rate}%` : "—",
+      subtext: m.opened != null ? `${m.opened.toLocaleString()} opened` : "No data yet",
+    },
+    {
+      label: "Click Rate",
+      value: m.click_rate != null ? `${m.click_rate}%` : "—",
+      subtext: m.clicked != null ? `${m.clicked.toLocaleString()} clicked` : "No data yet",
+    },
+    {
+      label: "Conversion Rate",
+      value: m.conversion_rate != null ? `${m.conversion_rate}%` : "—",
+      subtext: m.converted != null ? `${m.converted.toLocaleString()} converted` : "No data yet",
+    },
+    {
+      label: "Revenue",
+      value: m.revenue != null ? `$${m.revenue.toLocaleString()}` : "—",
+      subtext: m.avg_order != null ? `$${m.avg_order} avg. order` : "No data yet",
+    },
   ]
 
   return (
@@ -16,11 +39,11 @@ export function PerformanceMetrics() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 divide-x divide-border">
-          {metrics.map((m, i) => (
+          {metrics.map((item, i) => (
             <div key={i} className={`flex flex-col ${i > 0 ? 'pl-4' : ''}`}>
-              <span className="text-sm text-textSecondary mb-1">{m.label}</span>
-              <span className="text-2xl font-bold text-textPrimary">{m.value}</span>
-              <span className="text-xs text-textMuted mt-1">{m.subtext}</span>
+              <span className="text-sm text-textSecondary mb-1">{item.label}</span>
+              <span className="text-2xl font-bold text-textPrimary">{item.value}</span>
+              <span className="text-xs text-textMuted mt-1">{item.subtext}</span>
             </div>
           ))}
         </div>

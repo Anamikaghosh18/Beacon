@@ -1,8 +1,20 @@
-import { SignIn } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { SignIn, useUser } from "@clerk/clerk-react";
+import { Link, Navigate } from "react-router-dom";
 import logoImg from "../assets/beaconlogo.png";
 
 export function LoginPage() {
+  const { isLoaded, isSignedIn } = useUser();
+
+  // Debug info to help diagnose Clerk load issues
+  React.useEffect(() => {
+    console.log("LoginPage useUser:", { isLoaded, isSignedIn });
+  }, [isLoaded, isSignedIn]);
+
+  if (isLoaded && isSignedIn) {
+    return <Navigate to="/app/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex flex-1">
@@ -71,6 +83,7 @@ export function LoginPage() {
             </div>
             <SignIn
               routing="path"
+              path="/login"
               signUpUrl="/signup"
               afterSignInUrl="/app/dashboard"
               appearance={{

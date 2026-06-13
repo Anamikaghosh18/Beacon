@@ -7,21 +7,36 @@ import { useMockData } from "../../hooks/useMockData"
 
 export function CampaignTable() {
   const { data } = useMockData()
-  const campaigns = data.RECENT_CAMPAIGNS
+  
+  const campaigns = data.campaigns 
+    ? data.campaigns.map(c => ({
+        id: c.id,
+        name: c.name,
+        audience: `Segment #${c.segment_id}`,
+        channel: c.channel || 'Email',
+        status: c.status.charAt(0).toUpperCase() + c.status.slice(1),
+        revenue: c.metrics?.revenue ? `$${c.metrics.revenue}` : '—'
+      }))
+    : data.RECENT_CAMPAIGNS
 
   const enrichedCampaigns = campaigns.map(c => ({
     ...c,
-    openRate: c.status === 'Draft' ? '-' : (Math.random() * 40 + 10).toFixed(1) + '%',
-    clickRate: c.status === 'Draft' ? '-' : (Math.random() * 10 + 1).toFixed(1) + '%',
-    ownerAvatar: `https://i.pravatar.cc/150?u=${c.id}`
+    openRate: c.status === 'Draft' ? '—' : `${(Math.random() * 40 + 10).toFixed(1)}%`,
+    clickRate: c.status === 'Draft' ? '—' : `${(Math.random() * 10 + 1).toFixed(1)}%`,
   }))
 
   const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [filtersActive, setFiltersActive] = useState(false)
+  const itemsPerPage = 5
 
   const filteredCampaigns = enrichedCampaigns.filter(c => 
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     c.audience.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage)
+  const paginatedCampaigns = filteredCampaigns.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
     <Card className="border-border shadow-sm p-0 overflow-hidden">
@@ -39,8 +54,12 @@ export function CampaignTable() {
                 className="w-full bg-card border border-border rounded-lg pl-9 pr-4 py-2 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-1 focus:ring-primary/50 shadow-sm transition-shadow"
               />
             </div>
-            <Button variant="outline" className="gap-2 text-textSecondary bg-card">
-              <Filter className="w-4 h-4" /> Filter
+            <Button 
+              variant={filtersActive ? "secondary" : "outline"} 
+              className={`gap-2 ${filtersActive ? 'text-primary border-primary/20 bg-primary/5' : 'text-textSecondary bg-card'}`}
+              onClick={() => setFiltersActive(!filtersActive)}
+            >
+              <Filter className="w-4 h-4" /> Filter {filtersActive && "(Active)"}
             </Button>
           </div>
         </div>
@@ -60,19 +79,21 @@ export function CampaignTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filteredCampaigns.map((campaign) => (
+              {paginatedCampaigns.map((campaign) => (
                 <tr key={campaign.id} className="hover:bg-background/50 transition-colors cursor-pointer group" onClick={() => window.location.href = `/app/campaigns/${campaign.id}`}>
                   <td className="px-6 py-4">
                     <p className="font-semibold text-textPrimary group-hover:text-primary transition-colors">{campaign.name}</p>
                     <p className="text-xs text-textSecondary mt-0.5">{campaign.channel}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <img src={campaign.ownerAvatar} alt="Owner" className="w-6 h-6 rounded-full border border-border" />
+                    <div className="w-6 h-6 rounded-full border border-border bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px]">
+                      {campaign.name.charAt(0).toUpperCase()}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-textSecondary">{campaign.audience}</td>
                   <td className="px-6 py-4">
                     <Badge variant={
-                      campaign.status === 'Running' ? 'success' : 
+                      campaign.status === 'Running' || campaign.status === 'Sending' || campaign.status === 'Queued' ? 'success' : 
                       campaign.status === 'Completed' ? 'default' : 'outline'
                     }>
                       {campaign.status}
@@ -94,10 +115,20 @@ export function CampaignTable() {
           </table>
         </div>
         <div className="p-4 bg-background border-t border-border flex items-center justify-between text-sm text-textSecondary">
-          <span>Showing 1 to {filteredCampaigns.length} of {filteredCampaigns.length} entries</span>
+          <span>Showing {paginatedCampaigns.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, filteredCampaigns.length)} of {filteredCampaigns.length} entries</span>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled>Previous</Button>
-            <Button variant="outline" size="sm" disabled>Next</Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            >Previous</Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={currentPage >= totalPages || totalPages === 0}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            >Next</Button>
           </div>
         </div>
       </CardContent>
