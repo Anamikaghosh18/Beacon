@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Numeric, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
-from core.database import Base
+from backend.core.database import Base
 
 class Customer(Base):
     __tablename__ = "customers"
@@ -13,7 +13,8 @@ class Customer(Base):
     name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False, index=True)
     phone = Column(String(50))
-    total_spent = Column(Numeric(12, 2), default=0)
+    onesignal_id = Column(String(255)) 
+    total_spent = Column(Numeric(12, 2), default=0)  
     order_count = Column(Integer, default=0)
     first_order_at = Column(DateTime(timezone=True))
     last_order_at = Column(DateTime(timezone=True), index=True)

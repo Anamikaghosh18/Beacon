@@ -10,28 +10,28 @@ import { api } from "../services/api";
 export function CampaignDetails() {
   const { id } = useParams();
   const [campaign, setCampaign] = useState(null);
+  const [timeline, setTimeline] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await api.getCampaign(id);
-        setCampaign(data);
+        const [data, metrics, timelineData] = await Promise.all([
+          api.getCampaign(id),
+          api.getCampaignMetrics(id).catch(() => ({})),
+          api.getCampaignTimeline(id).catch(() => null),
+        ]);
+        setCampaign({ ...data, metrics });
+        setTimeline(timelineData);
       } catch {
-        // If fetch fails, set a minimal placeholder
-        setCampaign({
-          id,
-          name: "Campaign",
-          status: "draft",
-          channel: "email",
-          segment_id: null,
-          metrics: {},
-        });
+        setCampaign(null);
       } finally {
         setIsLoading(false);
       }
     }
     load();
+    const interval = setInterval(load, 10000);
+    return () => clearInterval(interval);
   }, [id]);
 
   if (isLoading) {
@@ -39,6 +39,15 @@ export function CampaignDetails() {
       <div className="flex items-center justify-center h-64 gap-3 text-textMuted">
         <Loader2 className="w-5 h-5 animate-spin" />
         <span>Loading campaign...</span>
+      </div>
+    );
+  }
+
+  if (!campaign) {
+    return (
+      <div className="text-center py-16 text-textMuted">
+        Campaign not found.
+        <Link to="/app/campaigns" className="block mt-2 text-primary">Back to campaigns</Link>
       </div>
     );
   }
@@ -70,13 +79,13 @@ export function CampaignDetails() {
             </Badge>
           </div>
           <p className="text-textSecondary">
-            {campaign.segment_id ? (
+            {campaign.audience_name ? (
               <>
                 Targeting{" "}
                 <span className="text-textPrimary font-medium">
-                  Segment #{campaign.segment_id}
+                  {campaign.audience_name}
                 </span>{" "}
-                via{" "}
+                ({campaign.audience_count?.toLocaleString() || 0} customers) via{" "}
                 <span className="text-textPrimary font-medium uppercase">
                   {campaign.channel}
                 </span>
@@ -92,7 +101,7 @@ export function CampaignDetails() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <CampaignTimeline campaign={campaign} />
+          <CampaignTimeline campaign={campaign} timeline={timeline} />
         </div>
         <div className="lg:col-span-1">
           <AIAnalysisPanel campaign={campaign} />

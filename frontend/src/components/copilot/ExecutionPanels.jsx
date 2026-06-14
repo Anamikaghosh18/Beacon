@@ -5,9 +5,19 @@ import { Button } from "../ui/Button"
 import { Users, MessageSquare, BarChart, Zap, Smartphone, Loader2, CheckCircle2 } from "lucide-react"
 import { api } from "../../services/api"
 
+function formatMetric(value, fallback) {
+  if (value == null || value === "") return fallback
+  if (typeof value === "number") {
+    if (value <= 1) return `${Math.round(value * 100)}%`
+    return String(value)
+  }
+  return String(value)
+}
+
 export function ExecutionPanels({ strategy }) {
   const [isLaunching, setIsLaunching] = useState(false);
   const [hasLaunched, setHasLaunched] = useState(false);
+  const [launchError, setLaunchError] = useState(null);
 
   if (!strategy) {
     return (
@@ -19,25 +29,39 @@ export function ExecutionPanels({ strategy }) {
 
   const handleLaunch = async () => {
     setIsLaunching(true);
+    setLaunchError(null);
     try {
+      const draft = strategy.message_draft || {}
+      const channel = strategy.channel_rec || {}
+      const audience = strategy.audience_match || {}
+
+      const segmentId = audience.segment_id || null
+
       const c = await api.createCampaign({
-        name: "AI Campaign: " + (strategy.campaign_data?.subject || "Outreach"),
-        segment_id: 1, // Fallback segment id if we don't have a real one mapped
-        channel: strategy.channel_data?.channel || "email"
+        name: "AI Campaign: " + (draft.subject || audience.segment_name || "Outreach"),
+        segment_id: segmentId,
+        channel: (channel.channel || "email").toLowerCase(),
+        message_body: draft.body || "",
+        subject_line: draft.subject || "",
       });
-      await api.launchCampaign(c.id);
+      const result = await api.launchCampaign(c.id);
       setHasLaunched(true);
+      console.log("Campaign launched:", result);
     } catch (err) {
       console.error("Failed to launch", err);
-      alert("Failed to launch campaign.");
+      setLaunchError(err.message || "Failed to launch campaign.");
     } finally {
       setIsLaunching(false);
     }
   }
+
+  const channel = strategy.channel_rec || {}
+  const draft = strategy.message_draft || {}
+  const projected = strategy.projected || {}
+
   return (
     <div className="space-y-4">
 
-      {/* Who we'll reach */}
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -63,7 +87,6 @@ export function ExecutionPanels({ strategy }) {
         </CardContent>
       </Card>
 
-      {/* How we'll reach them */}
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -73,15 +96,15 @@ export function ExecutionPanels({ strategy }) {
         <CardContent className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm text-textSecondary">Channel</span>
-            <span className="text-sm font-semibold text-textPrimary uppercase">{strategy.channel_data?.channel || "Email"}</span>
+            <span className="text-sm font-semibold text-textPrimary uppercase">{channel.channel || "Email"}</span>
           </div>
           <p className="text-xs text-textSecondary leading-relaxed bg-background border border-border rounded-lg p-3">
-            {strategy.channel_data?.reason || "This is the optimal channel for this segment."}
+            {channel.reason || "This is the optimal channel for this segment."}
           </p>
+          <p className="text-xs text-textMuted">Delivered via OneSignal (email, push, SMS, or WhatsApp).</p>
         </CardContent>
       </Card>
 
-      {/* The message */}
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -89,17 +112,15 @@ export function ExecutionPanels({ strategy }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {draft.subject && (
+            <div className="text-sm font-semibold text-textPrimary">{draft.subject}</div>
+          )}
           <div className="p-4 bg-background border border-border rounded-lg text-sm text-textPrimary leading-relaxed italic whitespace-pre-wrap">
-            {strategy.campaign_data?.body || "Message content."}
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-textSecondary">Button text</span>
-            <span className="font-semibold text-textPrimary">Shop Now →</span>
+            {draft.body || "Message content."}
           </div>
         </CardContent>
       </Card>
 
-      {/* Expected results */}
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -110,22 +131,26 @@ export function ExecutionPanels({ strategy }) {
           <div className="grid grid-cols-3 gap-4 divide-x divide-border">
             <div className="space-y-1">
               <p className="text-xs text-textSecondary">Will receive it</p>
-              <p className="text-xl font-bold text-textPrimary">{strategy.projected?.expected_delivery_rate || "95%"}</p>
+              <p className="text-xl font-bold text-textPrimary">{formatMetric(projected.expected_delivery_rate, "95%")}</p>
             </div>
             <div className="space-y-1 pl-4">
               <p className="text-xs text-textSecondary">Will open it</p>
-              <p className="text-xl font-bold text-textPrimary">{strategy.projected?.expected_open_rate || "45%"}</p>
+              <p className="text-xl font-bold text-textPrimary">{formatMetric(projected.expected_open_rate, "35%")}</p>
             </div>
             <div className="space-y-1 pl-4">
               <p className="text-xs text-textSecondary">Expected Rev</p>
-              <p className="text-xl font-bold text-textPrimary">{strategy.projected?.expected_revenue || "$2500"}</p>
+              <p className="text-xl font-bold text-textPrimary">{formatMetric(projected.expected_revenue, "$1,500")}</p>
             </div>
           </div>
           <p className="text-xs text-textMuted">Based on how similar campaigns performed for businesses like yours.</p>
+
+          {launchError && (
+            <p className="text-xs text-error bg-error/10 border border-error/20 rounded-lg p-3">{launchError}</p>
+          )}
           
           {hasLaunched ? (
             <div className="flex items-center justify-center gap-2 w-full py-2 bg-success/10 text-success rounded-lg font-semibold border border-success/20">
-              <CheckCircle2 className="w-5 h-5" /> Campaign Launched
+              <CheckCircle2 className="w-5 h-5" /> Campaign Launched — messages are being sent via OneSignal
             </div>
           ) : (
             <Button 

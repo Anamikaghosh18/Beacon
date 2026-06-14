@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import List, Optional
 from uuid import UUID
-from models.segment import Segment
+from backend.models.segment import Segment
 
 class SegmentRepository:
     def __init__(self, session: AsyncSession):

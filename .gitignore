@@ -1,7 +1,17 @@
+.env
+.env.local
+node_modules
+dist
+
+.vite/
+coverage/
+.vite-temp/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+*.env
 
 # C extensions
 *.so
@@ -143,3 +153,33 @@ cython_debug/
 .idea/
 *.swp
 *.swo
+
+# Alembic
+alembic/versions/__pycache__/
+alembic/__pycache__/
+*.db
+
+# logs
+logs/
+*.log
+
+# runtime temp files
+tmp/
+temp/
+*.pid
+
+# FastAPI / ASGI
+__pycache__/
+*.pyc
+
+# async local state / temp dbs
+*.sqlite3
+*.db-journal
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.env.docker
+docker-compose.override.yml

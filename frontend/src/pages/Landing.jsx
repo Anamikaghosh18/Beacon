@@ -63,12 +63,7 @@ export function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <SignedOut>
-              <Link
-                to="/login"
-                className="text-sm font-medium text-textSecondary hover:text-textPrimary transition-colors hidden sm:block"
-              >
-                Sign in
-              </Link>
+              
               <Link
                 to="/signup"
                 className="bg-primary text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-blue-700 transition-all shadow-sm ring-1 ring-black/10"
@@ -148,9 +143,7 @@ export function Landing() {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </SignedIn>
-              <button className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-semibold border border-border bg-card hover:bg-background text-textPrimary transition-all shadow-sm flex items-center justify-center gap-2">
-                <PlayCircle className="w-4 h-4" /> Watch Demo
-              </button>
+             
             </motion.div>
           </div>
         </section>
@@ -282,26 +275,7 @@ export function Landing() {
           </motion.div>
 
           {/* Customer Logos */}
-          <div className="mt-12 flex justify-center gap-8 md:gap-16 opacity-40 grayscale items-center">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-textMuted mr-4">
-              Trusted By
-            </span>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Linear_Logo.svg"
-              alt="Linear"
-              className="h-4"
-            />
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Notion-logo.svg"
-              alt="Notion"
-              className="h-4"
-            />
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Vercel_logo_black.svg"
-              alt="Vercel"
-              className="h-3 mt-0.5"
-            />
-          </div>
+         
         </section>
 
         {/* Feature Blocks - Highly Structured with Real Photos */}

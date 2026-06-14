@@ -1,81 +1,92 @@
-from typing import TypedDict, Annotated, Sequence
-import operator
+import logging
+from typing import TypedDict, Sequence
+
 from langchain_core.messages import BaseMessage
 from langgraph.graph import StateGraph, END
-from agents.gemini_llm import get_gemini_llm
-from langchain_core.messages import HumanMessage, AIMessage
 
-from agents.audience_agent import get_audience_agent
-from agents.channel_agent import get_channel_agent
-from agents.campaign_agent import get_campaign_agent
+from backend.agents.gemini_llm import get_gemini_llm
+from backend.agents.llm_utils import parse_llm_json
+from backend.agents.audience_agent import get_audience_agent
+from backend.agents.channel_agent import get_channel_agent
+from backend.agents.campaign_agent import get_campaign_agent
+
+logger = logging.getLogger(__name__)
+
+AUDIENCE_FALLBACK = {
+    "segment_name": "Your Best Buyers",
+    "segment_id": None,
+    "reason": "Fallback due to audience agent error",
+    "estimated_count": 0,
+}
+CHANNEL_FALLBACK = {
+    "channel": "email",
+    "reason": "Fallback due to channel agent error",
+    "expected_roi": "200%",
+}
+CAMPAIGN_FALLBACK = {
+    "subject": "We have something special for you",
+    "body": "Hi there! We wanted to reach out with a personalized offer just for you.",
+}
+
 
 class AgentState(TypedDict):
     input: str
+    segments_data: str
     audience_data: dict
     channel_data: dict
     campaign_data: dict
     messages: Sequence[BaseMessage]
 
-# Node functions
-def audience_node(state: AgentState):
-    llm = get_gemini_llm(model="models/gemini-1.5", temperature=0) if get_gemini_llm else None
-    agent = get_audience_agent(llm)
-    try:
-        response = agent.invoke({"input": state["input"]})
-        content = response.content
-    except Exception:
-        content = '{"segment_name": "Your Best Buyers", "reason": "Fallback due to no API Key or missing dependency", "estimated_count": 1240}'
-        
-    import json
-    try:
-        data = json.loads(content)
-    except:
-        data = {"segment_name": "Your Best Buyers", "reason": "Fallback parsing error", "estimated_count": 1240}
-        
-    return {"audience_data": data}
 
-def channel_node(state: AgentState):
-    llm = get_gemini_llm(model="models/gemini-1.5", temperature=0) if get_gemini_llm else None
-    agent = get_channel_agent(llm)
+def audience_node(state: AgentState):
     try:
+        llm = get_gemini_llm(temperature=0)
+        agent = get_audience_agent(llm)
         response = agent.invoke({
             "input": state["input"],
-            "audience": str(state["audience_data"])
+            "segments": state.get("segments_data", "[]"),
         })
-        content = response.content
+        data = parse_llm_json(response.content)
     except Exception:
-        content = '{"channel": "whatsapp", "reason": "Fallback due to no API Key or missing dependency", "expected_roi": "300%"}'
-        
-    import json
-    try:
-        data = json.loads(content)
-    except:
-        data = {"channel": "whatsapp", "reason": "Fallback parsing error", "expected_roi": "300%"}
-        
-    return {"channel_data": data}
+        logger.exception("Audience agent failed")
+        data = AUDIENCE_FALLBACK
 
-def campaign_node(state: AgentState):
-    llm = get_gemini_llm(model="models/gemini-1.5", temperature=0.7) if get_gemini_llm else None
-    agent = get_campaign_agent(llm)
+    return {"audience_data": data}
+
+
+def channel_node(state: AgentState):
     try:
+        llm = get_gemini_llm(temperature=0)
+        agent = get_channel_agent(llm)
         response = agent.invoke({
             "input": state["input"],
             "audience": str(state["audience_data"]),
-            "channel": str(state["channel_data"])
         })
-        content = response.content
+        data = parse_llm_json(response.content)
     except Exception:
-        content = '{"subject": "Special Offer Just For You!", "body": "Hey there! We noticed you love our products. Here is a 20% discount code: VIP20."}'
-        
-    import json
+        logger.exception("Channel agent failed")
+        data = CHANNEL_FALLBACK
+
+    return {"channel_data": data}
+
+
+def campaign_node(state: AgentState):
     try:
-        data = json.loads(content)
-    except:
-        data = {"subject": "Fallback Subject", "body": "Fallback body content."}
-        
+        llm = get_gemini_llm(temperature=0.7)
+        agent = get_campaign_agent(llm)
+        response = agent.invoke({
+            "input": state["input"],
+            "audience": str(state["audience_data"]),
+            "channel": str(state["channel_data"]),
+        })
+        data = parse_llm_json(response.content)
+    except Exception:
+        logger.exception("Campaign agent failed")
+        data = CAMPAIGN_FALLBACK
+
     return {"campaign_data": data}
 
-# Build the Graph
+
 workflow = StateGraph(AgentState)
 
 workflow.add_node("audience", audience_node)

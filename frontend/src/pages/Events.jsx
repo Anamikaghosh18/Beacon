@@ -5,19 +5,18 @@ import { useMockData } from "../hooks/useMockData"
 
 export function Events() {
   const { data } = useMockData()
+  const events = data.EVENT_STREAM || []
 
-  // Sum up real stats from campaigns if available
-  const campaigns = data.campaigns || []
-  const totalSent = campaigns.reduce((s, c) => s + (c.metrics?.sent || 0), 0)
-  const totalOpened = campaigns.reduce((s, c) => s + (c.metrics?.opened || 0), 0)
-  const totalClicked = campaigns.reduce((s, c) => s + (c.metrics?.clicked || 0), 0)
-  const totalRevenue = campaigns.reduce((s, c) => s + (c.metrics?.revenue || 0), 0)
+  const totalSent = events.filter(e => e.event_type === "sent").length
+  const totalOpened = events.filter(e => e.event_type === "opened").length
+  const totalClicked = events.filter(e => e.event_type === "clicked").length
+  const totalRevenue = data.kpis?.revenue_influenced || 0
 
   const summaryCards = [
     { icon: MessageCircle, label: "Messages sent", value: totalSent > 0 ? totalSent.toLocaleString() : "—" },
     { icon: CheckCircle2, label: "Messages read", value: totalOpened > 0 ? totalOpened.toLocaleString() : "—" },
     { icon: MousePointerClick, label: "Links clicked", value: totalClicked > 0 ? totalClicked.toLocaleString() : "—" },
-    { icon: DollarSign, label: "Sales from messages", value: totalRevenue > 0 ? `$${totalRevenue.toLocaleString()}` : "—" },
+    { icon: DollarSign, label: "Sales from messages", value: totalRevenue > 0 ? `$${Number(totalRevenue).toLocaleString()}` : "—" },
   ]
 
   return (
@@ -26,7 +25,7 @@ export function Events() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-textPrimary">Live Activity</h1>
           <p className="text-textSecondary mt-1 text-sm">
-            Watch in real time as your messages reach customers and they take action. Every open, click, and purchase shows up here the moment it happens.
+            Real-time delivery and engagement events from OneSignal campaigns.
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm shrink-0">

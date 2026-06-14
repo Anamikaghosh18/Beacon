@@ -78,6 +78,18 @@ class ApiService {
     });
   }
 
+  getCampaignMetrics(id) {
+    return this.fetch(`/campaigns/${id}/metrics`);
+  }
+
+  getCampaignTimeline(id) {
+    return this.fetch(`/campaigns/${id}/timeline`);
+  }
+
+  getEvents(limit = 50) {
+    return this.fetch(`/events?limit=${limit}`);
+  }
+
   // Strategist (AI)
   generateStrategy(prompt) {
     return this.fetch("/strategist/generate", {

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { UploadCloud, Database, ShoppingBag, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { api } from "../services/api";
+import { useMockData } from "../hooks/useMockData";
 
 export function Integrations() {
+  const { refresh } = useMockData();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(null); // 'success' | 'error' | null
   const [uploadMessage, setUploadMessage] = useState("");
@@ -20,6 +22,7 @@ export function Integrations() {
       const res = await api.uploadDataFile(file);
       setUploadStatus("success");
       setUploadMessage(res.message);
+      if (refresh) refresh();
     } catch (err) {
       setUploadStatus("error");
       setUploadMessage(err.message || "Failed to upload file");
@@ -62,7 +65,7 @@ export function Integrations() {
             <div>
               <h3 className="text-lg font-semibold text-textPrimary">File Upload</h3>
               <p className="text-sm text-textSecondary mt-1">
-                Upload a .csv or .xlsx file containing your customer data. Required columns: name, email.
+                Upload a .csv or .xlsx with your customer data. Works for any business — SaaS, ecommerce, subscriptions.
               </p>
             </div>
           </div>

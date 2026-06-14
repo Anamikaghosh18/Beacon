@@ -11,46 +11,19 @@ const ALL_STAGES = [
   "Converted",
 ];
 
-function getStageStatus(stageName, campaignStatus) {
-  const statusOrder = [
-    "draft",
-    "launched",
-    "sending",
-    "delivered",
-    "opened",
-    "clicked",
-    "completed",
-  ];
-  const stageOrder = [
-    "created",
-    "launched",
-    "sending",
-    "delivered",
-    "opened",
-    "clicked",
-    "converted",
-  ];
-
-  const currentIdx = statusOrder.indexOf(
-    (campaignStatus || "draft").toLowerCase(),
-  );
-  const stageIdx = stageOrder.indexOf(stageName.toLowerCase());
-
-  if (stageIdx < currentIdx) return "complete";
-  if (stageIdx === currentIdx) return "partial";
-  return "pending";
-}
-
-export function CampaignTimeline({ campaign }) {
-  const status = campaign?.status || "draft";
-
-  const stages = ALL_STAGES.map((name) => ({
-    name,
-    status: getStageStatus(name, status),
-  }));
+export function CampaignTimeline({ campaign, timeline }) {
+  const stages = timeline?.stages?.length
+    ? timeline.stages.map((s) => ({
+        name: s.name,
+        status: s.status,
+      }))
+    : ALL_STAGES.map((name) => ({
+        name,
+        status: campaign?.status === "draft" && name !== "Created" ? "pending" : "partial",
+      }));
 
   const completedCount = stages.filter((s) => s.status === "complete").length;
-  const progressPct = Math.round((completedCount / ALL_STAGES.length) * 100);
+  const progressPct = Math.round((completedCount / stages.length) * 100);
 
   return (
     <Card>
@@ -91,7 +64,7 @@ export function CampaignTimeline({ campaign }) {
           </div>
         </div>
 
-        {status === "draft" && (
+        {campaign?.status === "draft" && (
           <p className="text-center text-xs text-textMuted mt-6">
             This campaign hasn't launched yet.
           </p>

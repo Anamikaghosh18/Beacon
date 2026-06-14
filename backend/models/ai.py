@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
-from core.database import Base
+from backend.core.database import Base
 
 class AIRecommendation(Base):
     __tablename__ = "ai_recommendations"

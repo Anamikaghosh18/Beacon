@@ -12,27 +12,31 @@ export function CampaignTable() {
     ? data.campaigns.map((c) => ({
         id: c.id,
         name: c.name,
-        audience: `Segment #${c.segment_id}`,
-        channel: c.channel || "Email",
+        audience: c.audience_name || (c.segment_id ? `Segment` : "All customers"),
+        channel: c.channel || "email",
         status: c.status.charAt(0).toUpperCase() + c.status.slice(1),
-        revenue: c.metrics?.revenue ? `$${c.metrics.revenue}` : "—",
+        revenue: c.metrics?.revenue ? `$${Number(c.metrics.revenue).toLocaleString()}` : "—",
+        openRate:
+          c.status === "draft"
+            ? "—"
+            : c.metrics?.open_rate != null
+              ? `${c.metrics.open_rate}%`
+              : "—",
+        clickRate:
+          c.status === "draft"
+            ? "—"
+            : c.metrics?.click_rate != null
+              ? `${c.metrics.click_rate}%`
+              : "—",
       }))
-    : data.RECENT_CAMPAIGNS;
-
-  const enrichedCampaigns = campaigns.map((c) => ({
-    ...c,
-    openRate:
-      c.status === "Draft" ? "—" : `${(Math.random() * 40 + 10).toFixed(1)}%`,
-    clickRate:
-      c.status === "Draft" ? "—" : `${(Math.random() * 10 + 1).toFixed(1)}%`,
-  }));
+    : [];
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filtersActive, setFiltersActive] = useState(false);
   const itemsPerPage = 5;
 
-  const filteredCampaigns = enrichedCampaigns.filter(
+  const filteredCampaigns = campaigns.filter(
     (c) =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.audience.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -112,7 +116,7 @@ export function CampaignTable() {
                     <p className="font-semibold text-textPrimary group-hover:text-primary transition-colors">
                       {campaign.name}
                     </p>
-                    <p className="text-xs text-textSecondary mt-0.5">
+                    <p className="text-xs text-textSecondary mt-0.5 uppercase">
                       {campaign.channel}
                     </p>
                   </td>
@@ -156,7 +160,7 @@ export function CampaignTable() {
                     colSpan="7"
                     className="px-6 py-12 text-center text-textSecondary"
                   >
-                    No campaigns found.
+                    No campaigns yet. Use the AI Strategist or create one manually.
                   </td>
                 </tr>
               )}

@@ -3,10 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from uuid import UUID
 
-from core.database import get_db
-from core.auth import get_current_user
-from schemas.segment import SegmentCreate, SegmentResponse, SegmentListResponse
-from services.segment_service import SegmentService
+from backend.core.database import get_db
+from backend.core.auth import get_current_user
+from backend.schemas.segment import SegmentCreate, SegmentResponse, SegmentListResponse
+from backend.services.segment_service import SegmentService
 
 router = APIRouter()
 

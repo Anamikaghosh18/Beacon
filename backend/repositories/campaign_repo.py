@@ -3,8 +3,8 @@ from sqlalchemy import select, func, update
 from sqlalchemy.orm import selectinload
 from typing import List, Optional, Tuple
 from uuid import UUID
-from models.campaign import Campaign
-from models.communication import Communication, CommunicationEvent, Conversion
+from backend.models.campaign import Campaign
+from backend.models.communication import Communication, CommunicationEvent, Conversion
 
 class CampaignRepository:
     def __init__(self, session: AsyncSession):

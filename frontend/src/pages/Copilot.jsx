@@ -23,8 +23,32 @@ export function Copilot() {
     try {
       const response = await api.generateStrategy(userMsg)
       setStrategyResult(response)
-      
-      const aiResponse = `I've put together a strategy for you.\n\nAudience: ${response.audience_match?.segment_name || 'Your segment'}\nChannel: ${(response.channel_data?.channel || response.channel_rec?.channel || 'email').toUpperCase()}\n\nReview the execution panel on the right and launch when ready!`
+
+      const audience = response.audience_match || {}
+      const channel = response.channel_rec || {}
+      const draft = response.message_draft || {}
+      const count = audience.estimated_count != null
+        ? Number(audience.estimated_count).toLocaleString()
+        : "0"
+
+      const parts = [
+        "I've put together a strategy for you.",
+        "",
+        `Audience: ${audience.segment_name || "Your segment"} (${count} customers)`,
+        audience.reason || "",
+        "",
+        `Channel: ${(channel.channel || "email").toUpperCase()}`,
+        channel.reason || "",
+      ]
+
+      if (draft.body) {
+        const preview = draft.body.length > 220 ? `${draft.body.slice(0, 220)}...` : draft.body
+        parts.push("", "Message preview:", preview)
+      }
+
+      parts.push("", "Review the execution panel on the right and launch when ready!")
+
+      const aiResponse = parts.join("\n")
       setMessages(prev => [...prev, { role: "ai", content: aiResponse }])
     } catch (error) {
       console.error(error)

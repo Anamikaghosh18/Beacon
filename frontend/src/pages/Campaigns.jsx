@@ -18,7 +18,7 @@ export function Campaigns() {
           className="gap-2 shadow-button-primary"
           onClick={() => navigate('/app/assistant')}
         >
-          <Plus className="w-4 h-4" /> Start a New Campaign
+          <Plus className="w-4 h-4" /> Start a Campaign
         </Button>
       </div>
 

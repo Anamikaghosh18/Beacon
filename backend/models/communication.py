@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
-from core.database import Base
+from backend.core.database import Base
 
 class Communication(Base):
     __tablename__ = "communications"
@@ -12,6 +12,7 @@ class Communication(Base):
     campaign_id = Column(UUID(as_uuid=True), ForeignKey("campaigns.id"), nullable=False, index=True)
     customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False, index=True)
     channel = Column(String(50), nullable=False)
+    external_message_id = Column(String(255))  # OneSignal notification ID
     status = Column(String(50), default="pending", index=True)
     sent_at = Column(DateTime(timezone=True))
     delivered_at = Column(DateTime(timezone=True))

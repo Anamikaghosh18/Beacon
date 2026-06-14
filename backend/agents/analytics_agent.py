@@ -9,7 +9,7 @@ def get_analytics_agent(llm):
         return FallbackAnalyticsAgent()
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are the Analytics Agent for Beacon. Given an audience, channel, and message draft, project the engagement metrics. Return a JSON object with 'expected_delivery_rate', 'expected_open_rate', 'expected_click_rate', 'expected_revenue'."),
+        ("system", "You are the Analytics Agent for Beacon. Given an audience, channel, and message draft, project the engagement metrics. Return ONLY a JSON object with 'expected_delivery_rate', 'expected_open_rate', 'expected_click_rate', 'expected_revenue'."),
         ("user", "Audience: {audience}\nChannel: {channel}\nMessage: {message}")
     ])
     

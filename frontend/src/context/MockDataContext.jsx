@@ -1,5 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
-import * as mockData from '../data/mockData';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 
 export const MockDataContext = createContext();
@@ -14,55 +13,70 @@ const BLANK_STATE = {
   funnel: [],
   segments: [],
   campaigns: [],
-  EVENT_STREAM: [], // Event stream is empty initially
-  // Kept for backward compatibility if any old components still need it
+  EVENT_STREAM: [],
   MOCK_KPIS: { totalCustomers: 0, activeSegments: 0, campaignsSent: 0, revenueInfluenced: 0 },
   CAMPAIGN_FUNNEL: [],
   RECENT_CAMPAIGNS: [],
   SEGMENTS: [],
-  AI_INSIGHTS: [] // No AI insights until there's data
+  AI_INSIGHTS: []
 };
+
+async function enrichCampaigns(campaigns) {
+  return Promise.all(
+    campaigns.map(async (c) => {
+      if (c.status === 'draft') return { ...c, metrics: null };
+      try {
+        const metrics = await api.getCampaignMetrics(c.id);
+        return { ...c, metrics };
+      } catch {
+        return { ...c, metrics: null };
+      }
+    })
+  );
+}
 
 export function MockDataProvider({ children }) {
   const [data, setData] = useState(BLANK_STATE);
   const [isLoading, setIsLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
 
-  useEffect(() => {
-    async function fetchLiveBackend() {
-      try {
-        console.log("Attempting to connect to live backend...");
-        // Fetch all necessary data
-        const [kpis, funnel, segmentsRes, campaignsRes] = await Promise.all([
-          api.getKPIs(),
-          api.getFunnel(),
-          api.getSegments(),
-          api.getCampaigns()
-        ]);
+  const refresh = useCallback(async () => {
+    try {
+      const [kpis, funnel, segmentsRes, campaignsRes, eventsRes] = await Promise.all([
+        api.getKPIs(),
+        api.getFunnel(),
+        api.getSegments(),
+        api.getCampaigns(),
+        api.getEvents(50),
+      ]);
 
-        setData({
-          ...BLANK_STATE,
-          kpis,
-          funnel: funnel.funnel || [],
-          segments: segmentsRes.items || [],
-          campaigns: campaignsRes.items || []
-        });
-        setIsLive(true);
-        console.log("Successfully connected to live backend!");
-      } catch (error) {
-        console.warn("Live backend not detected or failed. Staying with blank slate.", error);
-        setIsLive(false);
-        // Keep the blank state
-      } finally {
-        setIsLoading(false);
-      }
+      const campaigns = await enrichCampaigns(campaignsRes.items || []);
+
+      setData({
+        ...BLANK_STATE,
+        kpis,
+        funnel: funnel.funnel || [],
+        segments: segmentsRes.items || [],
+        campaigns,
+        EVENT_STREAM: eventsRes.items || [],
+      });
+      setIsLive(true);
+    } catch (error) {
+      console.warn("Live backend not available:", error);
+      setIsLive(false);
+    } finally {
+      setIsLoading(false);
     }
-
-    fetchLiveBackend();
   }, []);
 
+  useEffect(() => {
+    refresh();
+    const interval = setInterval(refresh, 15000);
+    return () => clearInterval(interval);
+  }, [refresh]);
+
   return (
-    <MockDataContext.Provider value={{ data, setData, isLoading, isLive }}>
+    <MockDataContext.Provider value={{ data, setData, isLoading, isLive, refresh }}>
       {children}
     </MockDataContext.Provider>
   );

@@ -2,7 +2,9 @@ from langchain_core.prompts import ChatPromptTemplate
 
 def get_campaign_agent(llm):
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are the Campaign Strategist Agent for Beacon. Given a prompt, audience, and channel, write the actual message copy. Ensure the tone is engaging and suitable for the channel. Return a JSON object with 'subject' (if applicable) and 'body'."),
+        ("system", "You are the Campaign Copy Agent for Beacon. Write personalized message copy "
+         "for any business type (SaaS, ecommerce, subscriptions, etc.). Match tone to the channel. "
+         "Return ONLY JSON with 'subject' (for email/push, else empty string) and 'body'."),
         ("user", "Prompt: {input}\nAudience: {audience}\nChannel: {channel}")
     ])
     
