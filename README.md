@@ -1,16 +1,51 @@
-# React + Vite
+# Beacon
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AI-Powered Campaign Intelligence & Customer Engagement Platform**
 
-Currently, two official plugins are available:
+Beacon is a backend-first AI system that helps businesses **understand customers, create intelligent segments, and run high-performance campaigns across multiple channels** — automatically.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+It combines **data, AI, and communication infrastructure** into one unified engine for modern growth teams.
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ What Beacon Does
 
-## Expanding the ESLint configuration
+Beacon turns raw customer data into **actionable growth decisions**:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Automatically identifies customer segments
+- Generates AI-driven campaign strategies
+- Runs multi-channel campaigns (email, SMS, WhatsApp, push)
+- Tracks engagement and conversions in real-time
+- Continuously learns from campaign performance
+
+## 🧩 Why Beacon Exists
+
+Most tools force you to:
+- Use separate systems for data, campaigns, and messaging
+- Manually define audiences
+- Guess what works
+
+Beacon replaces that with:
+
+> **One intelligent system that decides who to target, what to send, and when to send it.**
+
+Instead of asking:
+> “What campaign should I run?”
+
+Beacon answers:
+> “Here’s the campaign you should run — and here’s why it will work.”
+
+## ⚙️ How It Works (Simple Flow)
+
+1. Customer data enters the system  
+2. Beacon builds dynamic segments  
+3. AI generates campaign strategy  
+4. Campaign is executed across channels  
+5. Results are tracked and fed back into the system  
+6. AI improves future campaigns automatically  
+
+
+## 🛠️ Status
+⚠️ Actively in development  
+
+## 👤 Author
+Built by **Anamika Ghosh**
